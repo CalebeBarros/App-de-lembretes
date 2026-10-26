@@ -19,6 +19,7 @@ customtkinter.set_default_color_theme("blue")
 janela = customtkinter.CTk()
 janela.title("Meus Lembretes")
 janela.geometry("800x750")
+janela.iconbitmap("Ícone-3D-de-checklist-e-sino.ico")
 
 # Tamanho da letra dos lembretes
 tamanho_letra = 26  # 👉 TROQUE AQUI se quiser começar maior ou menor
@@ -34,22 +35,27 @@ textos_dos_lembretes = []
 # ================================================================
 #  FUNÇÕES DOS LEMBRETES
 # ================================================================
+# def texto_do_lembrete():
+#     texto_lembrete.configure(text=f"{horario} - {texto}")
 
 def atualizar_contador():
-    # len() conta quantas coisas tem dentro da lista
     quantidade = len(textos_dos_lembretes)
 
     if quantidade == 0:
-        contador.configure(text="Nenhum lembrete. Aproveita o descanso!")
+        contador.configure(
+            text="Nenhum lembrete. Aproveita o descanso!",
+            text_color="#FFFFFF"
+        )
     elif quantidade == 1:
-        contador.configure(text="Você tem 1 lembrete")
+        contador.configure(text="Você tem 1 lembrete", text_color="#FFFFFF")
     else:
-        contador.configure(text="Você tem " + str(quantidade) + " lembretes")
+        contador.configure(text="Você tem " + str(quantidade) + " lembretes", text_color="#FFFFFF")
 
 
 def adicionar():
-    texto = entrada.get()
-
+    texto = entrada.get().strip()
+    hora = horario.get().strip()
+    
     # Se não escreveu nada, avisa
     if texto == "":
         contador.configure(text="Escreve um lembrete primeiro!")
@@ -57,9 +63,9 @@ def adicionar():
 
     # Se a lista já tá cheia, avisa também
     if len(textos_dos_lembretes) >= limite:
-        contador.configure(text="Lista cheia! Conclui um lembrete antes.")
+        contador.configure(text="Lista cheia! Conclui um lembrete antes.", text_color="#FA0101")
         return
-
+    
     # ------------------------------------------------------------
     #  📦 CAIXINHA DO LEMBRETE
     #  Olha que massa: cada lembrete ganha a SUA PRÓPRIA caixinha,
@@ -69,8 +75,15 @@ def adicionar():
     caixinha = customtkinter.CTkFrame(master=frame_lista)
     caixinha.pack(padx=10, pady=5, fill="x")
 
-    texto_lembrete = customtkinter.CTkLabel(master=caixinha, text=texto,
-                                            font=("Arial", tamanho_letra), wraplength=550)
+    
+    texto_horario = f"{hora} - {texto}"
+   
+    texto_lembrete = customtkinter.CTkLabel(
+        master=caixinha, 
+        text=texto_horario,
+        font=("Arial", tamanho_letra),
+        wraplength=550,
+    )
     texto_lembrete.pack(side="left", padx=15, pady=10)
 
     # Guarda o texto na mochila (a lista lá de cima)
@@ -87,7 +100,8 @@ def adicionar():
         atualizar_contador()
 
     btn_feito = customtkinter.CTkButton(master=caixinha, text="Feito ✓", width=120, height=50,
-                                        font=("Arial", 22), fg_color="#2E7D32",  # 👉 TROQUE AQUI
+                                        # 👉 TROQUE AQUI
+                                        font=("Arial", 22), fg_color="#2E7D32",
                                         command=concluir)
     btn_feito.pack(side="right", padx=10, pady=10)
 
@@ -134,6 +148,7 @@ def trocar_tema():
         btn_tema.configure(text="Modo claro")
 
 
+
 # ================================================================
 #  📦 CAIXA 1: BARRA DE ACESSIBILIDADE (lá no topo)
 #  A mesma dos outros dois apps. Você já é especialista nela!
@@ -150,29 +165,50 @@ btn_aumentar = customtkinter.CTkButton(master=frame_barra, text="A+", width=60, 
                                        font=("Arial", 22), command=aumentar)
 btn_aumentar.pack(side="left", padx=5, pady=10)
 
-info_tamanho = customtkinter.CTkLabel(master=frame_barra, text="Letra: 26", font=("Arial", 20))
+info_tamanho = customtkinter.CTkLabel(
+    master=frame_barra, text="Letra: 26", font=("Arial", 20))
 info_tamanho.pack(side="left", padx=15)
 
 btn_tema = customtkinter.CTkButton(master=frame_barra, text="Modo claro", height=50,
                                    font=("Arial", 20), command=trocar_tema)
 btn_tema.pack(side="right", padx=10, pady=10)
 
-
-# ================================================================
-#  📦 CAIXA 2: NOVO LEMBRETE (onde você escreve)
+#== == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == ==
+# 📦 CAIXA 2: NOVO LEMBRETE E HORÁRIO
 # ================================================================
 
 frame_entrada = customtkinter.CTkFrame(master=janela)
 frame_entrada.pack(padx=10, pady=10, fill="x")
 
-entrada = customtkinter.CTkEntry(master=frame_entrada, height=50, font=("Arial", 24),
-                                 placeholder_text="Ex.: Tomar remédio às 8h")
+# Caixa para escrever o horário
+horario = customtkinter.CTkEntry(
+    master=frame_entrada,
+    width=140,
+    height=50,
+    font=("Arial", 24),
+    placeholder_text="00:00"
+)
+horario.pack(side="left", padx=10, pady=10, fill="x", expand=True)
+
+
+# Caixa para escrever o lembrete
+entrada = customtkinter.CTkEntry(
+    master=frame_entrada,
+    height=50,
+    font=("Arial", 24),
+    placeholder_text="Lembremte:"
+)
 entrada.pack(side="left", padx=10, pady=10, fill="x", expand=True)
 
-btn_adicionar = customtkinter.CTkButton(master=frame_entrada, text="Adicionar", height=50,
-                                        font=("Arial", 22), command=adicionar)
+# Botão para adicionar
+btn_adicionar = customtkinter.CTkButton(
+    master=frame_entrada,
+    text="Adicionar",
+    height=50,
+    font=("Arial", 22),
+    command=adicionar
+)
 btn_adicionar.pack(side="right", padx=10, pady=10)
-
 
 # ================================================================
 #  📦 CAIXA 3: LISTA DE LEMBRETES
@@ -182,7 +218,8 @@ btn_adicionar.pack(side="right", padx=10, pady=10)
 # ================================================================
 
 frame_lista = customtkinter.CTkFrame(master=janela,
-                                     fg_color=("gray90", "gray10"))  # 👉 TROQUE AQUI as duas cores
+                                     # 👉 TROQUE AQUI as duas cores
+                                     fg_color=("gray90", "gray10"))
 frame_lista.pack(padx=10, pady=10, fill="both", expand=True)
 
 
@@ -194,7 +231,8 @@ frame_rodape = customtkinter.CTkFrame(master=janela, fg_color="transparent")
 frame_rodape.pack(padx=10, pady=10, fill="x")
 
 contador = customtkinter.CTkLabel(master=frame_rodape, text="Nenhum lembrete. Aproveita o descanso!",
-                                  font=("Arial", 22))
+                                  font=("Arial", 22),
+                                  text_color="#FFFFFF")
 contador.pack(pady=5)
 
 
